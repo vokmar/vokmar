@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type'/>
+    <title>JSP Page</title>
+</head>
+<body>
+
+<div th:replace="~{fragment/admin_menu :: admin_menu}"></div>
+<div style="float: left; width: 150px; padding: 10px;">
+    <form action="#" method="post" th:action="@{/ok/vendor}" th:object="${vendor}">
+        <span th:text="${stys}"></span>
+        <span th:switch="${stys}">
+
+          <span th:case="1"><input th:field="*{name}" type="text"/>
+              <input th:field="*{desc}" th:value="*{desc}" type="hidden"></span>
+
+          <span th:case="2"><input th:field="*{desc}" type="text"/>
+              <input th:field="*{name}" th:value="*{name}" type="hidden"></span>
+
+</span>
+        <input th:field="*{id}" th:value="*{id}" type="hidden">
+
+
+        <input type="submit" value="Save">
+        <p>
+        <div th:errors="*{name}" th:if="${#fields.hasErrors('name')}"></div>
+        </p>
+    </form>
+</div>
+</body>
+</html>

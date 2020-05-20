@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+      xmlns:th="http://www.thymeleaf.org">
+
+
+<head>
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
+
+    <title>Административная часть</title>
+</head>
+<body>
+
+<body>
+
+<div style="float: left; padding-right: 15px" th:fragment="admin_menu">
+    Меню
+    <table>
+        <tr>
+            <br>
+            <a th:href="@{/user/egrul/progect}">Проекты</a>
+            <br>
+
+
+            <div sec:authorize="hasAuthority('ADMIN')">
+
+                <a th:href="@{/admin/user/users}">Пользователи</a>
+                <br>
+                <a th:href="@{/admin/egrul/vendor}">Контрагенты</a>
+                <br>
+
+
+            </div>
+
+
+        </tr>
+
+    </table>
+    <div class="menu" th:replace="~{fragment/meny_user_admin :: meny_user_admin}"></div>
+</div>
+
+
+</body>
+</html>

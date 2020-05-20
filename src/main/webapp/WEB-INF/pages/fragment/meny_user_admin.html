@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Редактировать</title>
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+</head>
+<body>
+<div class="menus" th:fragment="meny_user_admin">
+    <span th:inline="text">[[${#httpServletRequest.remoteUser}]]!</span>
+    <a th:href="@{/logout(${_csrf.parameterName}=${_csrf.token})}">Выход</a>
+</div>
+</body>
+</html>

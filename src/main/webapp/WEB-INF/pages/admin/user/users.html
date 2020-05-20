@@ -1,0 +1,39 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
+    <link href="/resources/css/asmin.css" rel="stylesheet" th:href="@{/resources/css/asmin.css}" type="text/css">
+    <title>Администрация</title>
+</head>
+<body>
+
+<div th:replace="~{fragment/admin_menu :: admin_menu}"></div>
+
+
+<h1>Пользователи</h1>
+
+<table border="1">
+
+    <thead>
+
+    <th>id</th>
+    <th>Имя пользователя</th>
+    <th>Пароль</th>
+    <th>Роли</th>
+    </thead>
+    <tr th:each="users: ${user}">
+        <td th:text="${users.id}"></td>
+        <td th:text="${users.username}"></td>
+        <td th:text="${users.password}"></td>
+        <td>
+    <span th:each="role: ${users.roles}">
+    <div th:text="${role.name}"></div>
+    </span>
+        </td>
+    </tr>
+</table>
+
+
+</body>
+</html>
