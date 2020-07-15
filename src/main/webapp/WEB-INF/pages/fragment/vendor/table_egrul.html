@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
+      xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
+<head>
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
+    <title></title>
+</head>
+<body>
+
+<div th:fragment="table_egrul">
+    <div style="margin-bottom: 15px;">
+        <table data-sub-category="2" data-type-category="nou" id="egrulname">
+            <thead>
+            <tr>
+                <td id="hed">Краткое наименование</td>
+                <td id="hed">Полное наименование</td>
+            </tr>
+            </thead>
+            <form action="#" class="formajax" method="post" name="egruls" th:action="@{/user/egrul/vendajax}">
+                <div th:each="v : ${vendor}">
+
+                    <tr th:id="${v.id}">
+                        <td><input class="ft" name="name" placeholder="Тип юр. лица" th:id="${v.id}"
+                                   th:value="${v.name}"
+                                   type="text"/></td>
+                        <td><textarea class="ft" data-min-rows="1" name="desc" placeholder="Описание типа" rows="1"
+                                      th:id="${v.id}" th:text="${v.desc}"></textarea></td>
+
+                        <td style="border: 1px" th:id="${v.id}"></td>
+                    </tr>
+
+                </div>
+
+                <!-- Дополнительная строка -->
+                <tr id="new_so">
+                    <td><input class=ft id="new_name" name="name" placeholder="Новое значение..." type=text value=""/>
+                    <td><textarea class=ft data-min-rows="1" id="new_desc" name="desc" placeholder="Новое описание..."
+                                  rows="1"></textarea></td>
+                    <td id="delete" style="border: 0px"></td>
+                </tr>
+
+
+            </form>
+        </table>
+
+    </div>
+
+</div>
+
+</body>
+</html>

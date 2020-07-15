@@ -1,0 +1,53 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>TODO supply a title</title>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type'/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link href="/resources/css/loginform.css" rel="stylesheet" th:href="@{/resources/css/loginform.css}"
+          type="text/css">
+</head>
+<body>
+
+
+<h1>Регистрация</h1>
+
+<form action="#" method="post" th:action="@{/registration}" th:object="${userForm}">
+    <div class="loginf menu">
+        <div class="loginu">
+            <input placeholder="@mail" th:field="*{username}" type="text"/>
+        </div>
+        <div class="passwordf">
+            <input placeholder="Пароль" th:field="*{password}" type="text"/>
+        </div>
+        <div class="passwordf">
+
+            <input placeholder="Подтверждение пароля" th:field="*{passwordConfirm}" type="text"/>
+        </div>
+
+        <div class="buttonf">
+            <input type="submit" value="Регистрация"/>
+        </div>
+
+    </div>
+    <div class="errorlr">
+        <p>
+        <div th:text=${passwordError}></div>
+        </p>
+        <p>
+        <div th:text=${usernameError}></div>
+        </p>
+        <p>
+        <div th:errors="*{username}" th:if="${#fields.hasErrors('username')}"></div>
+        </p>
+        <p>
+        <div th:errors="*{password}" th:if="${#fields.hasErrors('password')}"></div>
+        </p>
+    </div>
+
+</form>
+
+
+</body>
+</html>

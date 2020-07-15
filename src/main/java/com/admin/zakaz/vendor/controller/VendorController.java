@@ -1,7 +1,14 @@
 package com.admin.zakaz.vendor.controller;
 
+import com.admin.zakaz.vendor.entity.SubCategoryVendor;
 import com.admin.zakaz.vendor.entity.Vendor;
+import com.admin.zakaz.vendor.entity.СategoryVendor;
+import com.admin.zakaz.vendor.servise.CategoryServise;
+import com.admin.zakaz.vendor.servise.CategorySqlServise;
 import com.admin.zakaz.vendor.servise.VendorServise;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.codehaus.jettison.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -14,7 +21,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,52 +34,32 @@ public class VendorController {
     @Autowired
     private VendorServise sv;
 
-    // Начальная загрузка таблицы типа юридических лиц
+    @Autowired
+    private CategoryServise categoryS;
+
+
+    /* Начальная загрузка
+    таблица типа юридических лиц Vendor
+    таблица категорий СategoryVendor
+
+    * */
     @PreAuthorize("hasAuthority('ADMIN')")
     @RequestMapping(value = "/admin/egrul/vendor", method = RequestMethod.GET)
-    public String ok(Model mu) {
-        Vendor venNev = new Vendor();
-        //venNev.setId((long) 1); // Для нового объекта устнавливаем id=1, чтобы можно было выполнять валидацию объекта
-        List<Vendor> df = sv.findByName(); // Получение всех записей и передача их в модель
-        mu.addAttribute("vendor", df);
-        mu.addAttribute("newvend", venNev);
+    public String ok(Model mu, HttpServletResponse response) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        List<СategoryVendor> catVendor = categoryS.findByName();
+        String strVendor = objectMapper.writeValueAsString(catVendor);
+
+        mu.addAttribute("vendor", sv.findByName()); // Получение всех записей и передача их в модель
+        mu.addAttribute("category", catVendor);
+        mu.addAttribute("catevend", strVendor);
         return "/admin/egrul/vendor";
     }
 
-//    @RequestMapping(value = "/ok/egrul/edit")
-//    public String edit(@RequestParam long id, @RequestParam long v, Model model) {
-//        //ModelAndView mav = new ModelAndView("edit_customer");
-//        Vendor vend = sv.getId(id);
-//        model.addAttribute("stys", v);
-//        model.addAttribute("vendor", vend);
-//        return "edit_customer";
-//    }
-
-//   // @PreAuthorize("isAuthenticated()")
-//    @RequestMapping(value = "user/egrul/vendor", method = RequestMethod.POST)
-//    public String createVendor (@ModelAttribute("vendor") @Valid Vendor vend, BindingResult bindingResult, Model model){
-//
-//        if (bindingResult.hasErrors()) {
-//            return "edit_customer";
-//        }
-//        Vendor nr = (Vendor) model.getAttribute("vendor");
-//        sv.getCreateVokmar(nr);
-//        return "/user/egrul/vendor";
-//    }
-
-//   // @PreAuthorize("isAuthenticated()")
-//    @RequestMapping(value = "/vend.new", method = RequestMethod.POST)
-//    public String newVendor (@ModelAttribute("newvend") @Valid Vendor vend, BindingResult bindingResult, Model model){
-//        if (bindingResult.hasErrors()) {
-//            return "redirect:/admin/egrul/vendor";
-//        }
-//        sv.getInsertVokmar(vend);
-//        return "redirect:/admin/egrul/vendor";
-//    }
-
     // Добавление ноых позиций в таблицу типов юридических лиц
     @PreAuthorize("hasAuthority('ADMIN')")
-    @RequestMapping(value = "admin/egrul/vendajax", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "admin/egrul/egrulname", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public Vendor newVendorAjax(@Valid @RequestBody Vendor vend, BindingResult bindingResult, Model model) {
 
@@ -93,33 +83,58 @@ public class VendorController {
         return sv.getInsertVokmar(vend);
     }
 
-//    //@PreAuthorize("isAuthenticated()")
-//    @RequestMapping(value = "edits")
-//    @ResponseBody
-//    public String editAjax(@RequestParam long id, @RequestParam long v, Model model) {
-//        //ModelAndView mav = new ModelAndView("edit_customer");
-//        Vendor vend = sv.getId(id);
-//        model.addAttribute("stys", v);
-//        model.addAttribute("vendor", vend);
-//        return "edit_customer";
-//    }
 
-
-//
-//   // @PreAuthorize("isAuthenticated()")
-//    @RequestMapping(value = "user/egrul/delete", method = RequestMethod.GET)
-//    public String Delete(@RequestParam long id, Model mu) {
-//sv.getDeleteVokmar(id);
-//        return "redirect:/ok";
-//    }
-
-    // Одиночное и массовое удаление записай из таблицы типов юридических лиц
+    // Одиночное и массовое удаление записей из таблицы типов юридических лиц
     @PreAuthorize("hasAuthority('ADMIN')")
-    @RequestMapping(value = "admin/egrul/delete/all", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "admin/egrul/egrulname/delete/all", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public boolean Delete_ALL_Ajax(@RequestBody List<Vendor> vendors) {
-
         sv.getDeleteAll_id(vendors);
+        return true;
+    }
+
+    // Создаем или изменяем категорию
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @RequestMapping(value = "admin/egrul/category", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public СategoryVendor newСategoryAjax(@Valid @RequestBody СategoryVendor category, BindingResult bindingResult, Model model) {
+
+
+        if (bindingResult.hasErrors()) {
+            СategoryVendor categ = new СategoryVendor();
+            // Формируем карту ошибок
+            Map<String, String> errors3 = new HashMap<>();
+
+            List<FieldError> errors1 = bindingResult.getFieldErrors();
+
+            Integer i = 0;
+            for (FieldError error : errors1) {
+                errors3.put("" + i++, error.getDefaultMessage());
+            }
+
+            categ.setValidated(true);
+            categ.setErrorMessages(errors3);
+            return categ;
+        }
+        category.setValidated(false);
+        return categoryS.getInsertСategory(category);
+    }
+
+    // Одиночное и массовое удаление записей из таблицы категорий
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @RequestMapping(value = "admin/egrul/category/delete/all", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public boolean Delete_ALL_Ajax_category(@RequestBody List<СategoryVendor> category) {
+        categoryS.getDeleteAll_id(category);
+        return true;
+    }
+
+    // Одиночное и массовое удаление записей из таблицы под категорий
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @RequestMapping(value = "admin/egrul/subcategory/delete/all", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public boolean Delete_ALL_Ajax_subCategory(@RequestBody List<SubCategoryVendor> category) {
+        categoryS.getDeleteAll_idSub(category);
         return true;
     }
 

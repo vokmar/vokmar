@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html
+        xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
+<head>
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
+    <title></title>
+
+</head>
+<body>
+
+<div th:fragment="table_category">
+    <div style="margin-bottom: 15px;">
+        <table data-sub-category="2" data-type-category="ok" id="category">
+            <thead>
+            <tr>
+                <td id="hed">Наименование</td>
+                <td id="hed">Описание</td>
+            </tr>
+            </thead>
+            <form action="#" class="formajax" method="post" name="category" th:action="@{/user/egrul/vendajax}">
+                <div th:each="v : ${category}">
+
+                    <tr th:id="${v.id}">
+                        <td>
+                            <div class="content_spisok">
+                                <div class="spisok" th:id="${v.id}">
+                                    <a href="#">+</a>
+                                </div>
+                                <div class="input_spisok">
+                                    <input class="ft" name="name" placeholder="Наименование" th:id="${v.id}"
+                                           th:value="${v.name}"
+                                           type="text"/>
+                                </div>
+                            </div>
+                        </td>
+                        <td><textarea class="ft" data-min-rows="1" name="desc" placeholder="Описание" rows="1"
+                                      th:id="${v.id}" th:text="${v.desc}"></textarea></td>
+                        <td style="border: 1px" th:id="${v.id}"></td>
+                    </tr>
+
+                    <!-- Вложенные элементы -->
+                    <div th:each="cat : ${v.subcategory}">
+                        <tr style="display: none;" th:data-cat="${v.id}" th:data-sub-cat="${cat.id}"
+                            th:data-tr-id="${v.id}" th:id="${cat.id+'_'+v.id}">
+                            <td><input class="ft" name="name" placeholder="Наименование" th:id="${cat.id+'_'+v.id}"
+                                       th:value="${cat.name}"
+                                       type="text"/></td>
+                            <td><textarea class="ft" data-min-rows="1" name="desc" placeholder="Описание" rows="1"
+                                          th:id="${cat.id+'_'+v.id}" th:text="${cat.desc}"></textarea></td>
+                            <td style="border: 1px" th:id="${cat.id}"></td>
+                        </tr>
+
+                    </div>
+                    <!--Конец вложенных элементов-->
+                    <!-- Дополнительная строка во вложенных элементох -->
+                    <tr style="display: none;" th:data-cat="${v.id}" th:data-sub-cat="${'new'}" th:data-tr-id="${v.id}"
+                        th:id="${'new_so_'+v.id}">
+                        <td><input class=ft name="name" placeholder="Новая подкатегория..." th:id="${'new_name_'+v.id}"
+                                   type=text value=""/>
+                        </td>
+                        <td><textarea class=ft data-min-rows="1" name="desc" placeholder="Новое описание..." rows="1"
+                                      th:id="${'new_desc_'+v.id}"></textarea></td>
+                        <td style="border: 0px" th:id="${'delete_'+v.id}"></td>
+                    </tr>
+                    <!-- Конец дополнительной строки во вложенных элементох -->
+
+                </div>
+                <!-- Дополнительная строка в основных -->
+                <tr id="new_so" th:data-cat="${'new'}">
+                    <td><input class=ft id="new_name" name="name" placeholder="Новая категория..." type=text value=""/>
+                    <td><textarea class=ft data-min-rows="1" id="new_desc" name="desc" placeholder="Новое описание..."
+                                  rows="1"></textarea></td>
+                    <td id="delete" style="border: 0px"></td>
+                </tr>
+
+            </form>
+        </table>
+
+
+    </div>
+
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        var datas =/*[[${catevend}]]*/;
+        /* ]]>*/
+    </script>
+
+
+</div>
+
+
+</body>
+</html>

@@ -1,0 +1,416 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    min-height: 100%;
+
+}
+
+body {
+
+    overflow-y: auto;
+}
+
+
+.conteiner-body {
+    height: 100%;
+    min-height: 100%;
+}
+
+
+
+/*Стиль сообщения об ошибке*/
+.error {
+    color: crimson;
+    font-size: 12px;
+    text-align: left;
+    position: absolute;
+    padding: 4px 2px 4px 4px;
+    width: 150px;
+    height: auto;
+    max-height: 150px;
+    border: 1px solid darkgray;
+    border-radius: 5px;
+    background-color: white;
+
+
+}
+
+.link_eror_krest:hover {
+    float: left;
+    display: block;
+    text-align: center;
+    color: crimson;
+}
+
+.link_eror_krest {
+    float: left;
+    display: block;
+    text-align: center;
+    color: darkgray;
+    padding: 0px;
+    margin: 0px 0px 2px 0px;
+    width: 14px;
+    height: 14px;
+    position: absolute;
+    top: -2px;
+    right: 0px;
+    vertical-align: center;
+    text-decoration: none;
+    font-family: Arial;
+    font-size: 14px;
+}
+
+
+/*
+Свойства полей input внутри таблицы
+ */
+.ft {
+    border: 0px;
+    position: relative;
+    resize: none;
+    box-sizing: border-box;
+    padding: 5px 5px;
+    margin: 2px;
+
+}
+
+.tablse {
+    border: 1px #80bdff;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.tablse td {
+
+    width: 100%;
+}
+
+table {
+    border: 1px;
+    border-collapse: collapse;
+}
+
+.content_spisok {
+    min-height: 35px;
+
+    height: 35px;
+}
+
+.content_spisok2 {
+    min-height: 35px;
+    padding-left: 15px;
+    height: 35px;
+}
+
+.spisok {
+    float: left;
+    vertical-align: central;
+    align-content: center;
+    width: 30%;
+    /* border: #ef582c solid 1px;*/
+    width: 20px; /* Ширина кнопки */
+    height: 20px;
+    margin: 5px auto 5px;
+}
+
+
+.spisok a{
+
+    text-decoration: none;
+
+}
+
+.input_spisok {
+    float: left;
+    vertical-align: middle;
+    margin: 1px auto 1px;
+    /*border: #777620 solid 1px;*/
+}
+
+
+
+
+
+
+/*Отключение синей обводки в браузерах*/
+input {
+    outline: none;
+    font-family: "Cambria Math";
+}
+
+textarea {
+    outline: none;
+    font-family: "Cambria Math";
+}
+
+/*Отключаем фон автозаполнения*/
+@-webkit-keyframes autofill {
+    to {
+        color: inherit;
+        background: transparent;
+    }
+}
+
+/*Отключаем фон автозаполнения*/
+input:-webkit-autofill {
+    -webkit-animation-name: autofill;
+    -webkit-animation-fill-mode: both;
+}
+
+
+table thead td {
+
+    background: darkgray;
+    color: ghostwhite;
+    font-family: "Cambria Math";
+    padding: 8px 8px 3px 6px;
+    margin: 0px;
+
+
+}
+
+td {
+    text-align: center;
+    border: 1px solid black;
+    border-collapse: collapse;
+
+
+}
+
+/*Настройка свойств текст Ареа для всех таблиц*/
+table textarea {
+
+    overflow: hidden;
+    padding: 1px;
+    font-size: 14px;
+    border: 0;
+    height: 16px;
+
+    min-height: 16px;
+    /*позволяет избежать смещение текста в добавляемой строке при обновлении*/
+
+
+
+
+
+}
+
+.div_table_delete {
+    /*width: 20px;*/
+    float: left;
+    padding-left: 5px;
+
+}
+
+
+/* для элемента input c type="checkbox" */
+.cehed_all_delete {
+    position: absolute;
+    z-index: -1;
+    opacity: 0;
+}
+
+/* для элемента label, связанного с .custom-checkbox */
+.cehed_all_delete + label {
+    display: inline-flex;
+    align-items: center;
+    user-select: none;
+}
+
+/* создание в label псевдоэлемента before со следующими стилями */
+.cehed_all_delete + label::before {
+    content: '';
+    display: inline-block;
+    width: 1.1em;
+    height: 1em;
+    flex-shrink: 0;
+    flex-grow: 0;
+    border: 1px solid #adb5bd;
+    border-radius: 0.25em;
+    margin-right: 0em;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: 50% 50%;
+    text-align: center;
+    vertical-align: center;
+    font-size: 12px;
+    padding-bottom: 2px;
+}
+
+/* стили при наведении курсора на checkbox */
+.cehed_all_delete:not(:disabled):not(:checked) + label:hover::before {
+    border-color: #b3d7ff;
+}
+
+/* стили для активного чекбокса (при нажатии на него) */
+.cehed_all_delete:not(:disabled):active + label::before {
+    background-color: #b3d7ff;
+    border-color: #b3d7ff;
+
+}
+
+/* стили для чекбокса, находящегося в фокусе */
+.cehed_all_delete:focus + label::before {
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* стили для чекбокса, находящегося в фокусе и не находящегося в состоянии checked */
+.cehed_all_delete:focus:not(:checked) + label::before {
+    border-color: #80bdff;
+}
+
+/* стили для чекбокса, находящегося в состоянии checked */
+.cehed_all_delete:checked + label::before {
+    content: '\2714';
+    border-color: #ef582c;
+    background-color: #8ad6ef;
+    /*background-image: url("../../resources/image/delete_str.png");*/
+    text-align: center;
+    vertical-align: center;
+    font-size: 12px;
+    padding-bottom: 2px;
+
+
+}
+
+
+/* стили для чекбокса, находящегося в состоянии disabled */
+.cehed_all_delete:disabled + label::before {
+    background-color: #e9ecef;
+}
+
+
+.cehed_all_delete_a {
+    position: absolute;
+    z-index: -1;
+    opacity: 0;
+}
+
+/* для элемента label, связанного с .custom-checkbox */
+.cehed_all_delete_a + label {
+    display: inline-flex;
+    align-items: center;
+    user-select: none;
+    text-align: center;
+    margin-left: 2px;
+}
+
+.cehed_all_delete_a + label::before {
+    content: '\2714';
+    color: #adb5bd;
+    display: inline-block;
+    width: 1.1em;
+    height: 1em;
+    flex-shrink: 0;
+    flex-grow: 0;
+    border: 1px solid #adb5bd;
+    border-radius: 0.25em;
+    margin-right: 0em;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: 50% 50%;
+    text-align: center;
+    vertical-align: center;
+    font-size: 12px;
+    padding-bottom: 2px;
+}
+
+.cehed_all_delete_a:not(:disabled):active + label::before {
+    background-color: #b3d7ff;
+    border-color: #b3d7ff;
+    text-align: center;
+}
+
+.cehed_all_delete_a:checked + label::before {
+    content: '\2714';
+    color: red;
+    border-color: #ef582c;
+    text-align: center;
+    vertical-align: center;
+    font-size: 12px;
+    padding-bottom: 2px;
+}
+
+
+#TEST {
+
+    z-index: 999;
+
+}
+
+/*Размещение меню*/
+.menus {
+    position: absolute;
+    top: 0px;
+    right: 20px;
+    border-bottom: 1px solid #80bdff;
+    height: 20px;
+}
+
+
+/*Аккордион*/
+
+.conteiner-accordion {
+    float: left;
+    width: 60%;
+
+    margin-left: 25px;
+
+}
+
+.accordion .accordion-item {
+    border: 1px solid #ddd;
+    margin: 0 0 10px 0;
+}
+
+.accordion .ui-accordion-header {
+    padding: 10px;
+    background: #adb5bd;
+    cursor: pointer;
+    outline: none;
+}
+
+.accordion .ui-accordion-content {
+
+    padding: 0px;
+}
+
+/*Конец Аккордиона*/
+
+.admin_menu {
+    float: left;
+    width: 120px;
+    min-height: 100%;
+    padding: 10px;
+    height: 100%;
+    margin: auto;
+    background: rgba(192, 192, 192, 0.1);
+
+
+}
+
+
+#accordeons {
+    float: left;
+    width: 80%;
+    border: 10px solid #fff;
+    box-shadow: 0 0 10px grey;
+    margin: 10px;
+
+
+}
+
+.acc-head {
+    padding: 5px 10px;
+    background: #c0c0c0;
+    cursor: pointer;
+    margin: 5px;
+}
+
+.acc-body {
+    padding: 10px;
+    border-bottom: 1px solid #c0c0c0;
+    margin-bottom: 5px;
+    display: none;
+}

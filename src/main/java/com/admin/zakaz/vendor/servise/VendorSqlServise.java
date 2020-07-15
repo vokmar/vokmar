@@ -30,6 +30,7 @@ public class VendorSqlServise implements VendorServise {
         return query.getResultList();
     }
 
+
     @Override // Поиск сущности по id
     public Vendor getId(Long id) {
         return em.find(Vendor.class, id);

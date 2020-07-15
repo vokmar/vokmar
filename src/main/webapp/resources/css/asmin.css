@@ -1,15 +1,39 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    min-height: 100%;
+
+}
+
+body {
+
+    overflow-y: auto;
+}
+
+
+.conteiner-body {
+    height: 100%;
+    min-height: 100%;
+}
+
+
+
 /*Стиль сообщения об ошибке*/
 .error {
     color: crimson;
     font-size: 12px;
     text-align: left;
-    position: relative;
+    position: absolute;
     padding: 4px 2px 4px 4px;
     width: 150px;
     height: auto;
+    max-height: 150px;
     border: 1px solid darkgray;
     border-radius: 5px;
     background-color: white;
+
+
 }
 
 .link_eror_krest:hover {
@@ -51,18 +75,73 @@
 
 }
 
+.tablse {
+    border: 1px #80bdff;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.tablse td {
+
+    width: 100%;
+}
+
 table {
     border: 1px;
     border-collapse: collapse;
 }
 
+.content_spisok {
+    min-height: 35px;
+
+    height: 35px;
+}
+
+.content_spisok2 {
+    min-height: 35px;
+    padding-left: 15px;
+    height: 35px;
+}
+
+.spisok {
+    float: left;
+    vertical-align: central;
+    align-content: center;
+    width: 30%;
+    /* border: #ef582c solid 1px;*/
+    width: 20px; /* Ширина кнопки */
+    height: 20px;
+    margin: 5px auto 5px;
+}
+
+
+.spisok a {
+
+    text-decoration: none;
+
+}
+
+.input_spisok {
+    float: left;
+    vertical-align: middle;
+    margin: 1px auto 1px;
+    /*border: #777620 solid 1px;*/
+}
+
+
+
+
+
+
 /*Отключение синей обводки в браузерах*/
 input {
     outline: none;
+    font-family: "Cambria Math";
 }
 
 textarea {
     outline: none;
+    font-family: "Cambria Math";
 }
 
 /*Отключаем фон автозаполнения*/
@@ -99,17 +178,20 @@ td {
 
 }
 
-#egrulname textarea {
-    /*display: block; не нужно использовать*/
+/*Настройка свойств текст Ареа для всех таблиц*/
+table textarea {
 
     overflow: hidden;
-
     padding: 1px;
-
     font-size: 14px;
-
-
     border: 0;
+    height: 16px;
+
+    min-height: 16px;
+    /*позволяет избежать смещение текста в добавляемой строке при обновлении*/
+
+
+
 
 
 }
@@ -118,6 +200,7 @@ td {
     /*width: 20px;*/
     float: left;
     padding-left: 5px;
+
 }
 
 
@@ -164,6 +247,7 @@ td {
 .cehed_all_delete:not(:disabled):active + label::before {
     background-color: #b3d7ff;
     border-color: #b3d7ff;
+
 }
 
 /* стили для чекбокса, находящегося в фокусе */
@@ -186,6 +270,7 @@ td {
     vertical-align: center;
     font-size: 12px;
     padding-bottom: 2px;
+
 
 }
 
@@ -261,4 +346,71 @@ td {
     right: 20px;
     border-bottom: 1px solid #80bdff;
     height: 20px;
+}
+
+
+/*Аккордион*/
+
+.conteiner-accordion {
+    float: left;
+    width: 60%;
+
+    margin-left: 25px;
+
+}
+
+.accordion .accordion-item {
+    border: 1px solid #ddd;
+    margin: 0 0 10px 0;
+}
+
+.accordion .ui-accordion-header {
+    padding: 10px;
+    background: #adb5bd;
+    cursor: pointer;
+    outline: none;
+}
+
+.accordion .ui-accordion-content {
+
+    padding: 0px;
+}
+
+/*Конец Аккордиона*/
+
+.admin_menu {
+    float: left;
+    width: 120px;
+    min-height: 100%;
+    padding: 10px;
+    height: 100%;
+    margin: auto;
+    background: rgba(192, 192, 192, 0.1);
+
+
+}
+
+
+#accordeons {
+    float: left;
+    width: 80%;
+    border: 10px solid #fff;
+    box-shadow: 0 0 10px grey;
+    margin: 10px;
+
+
+}
+
+.acc-head {
+    padding: 5px 10px;
+    background: #c0c0c0;
+    cursor: pointer;
+    margin: 5px;
+}
+
+.acc-body {
+    padding: 10px;
+    border-bottom: 1px solid #c0c0c0;
+    margin-bottom: 5px;
+    display: none;
 }
