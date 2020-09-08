@@ -17,15 +17,18 @@ import java.util.Map;
 public class СategoryVendor implements Serializable {
 
     public static final String FIND_ALL = "СategoryVendor.findByName";
-    @Column(name = "CANTEGORY_NAME")
-    @NotBlank(message = "Имя категории не может быть пустым")
-    @Size(min = 4, max = 100, message = "Минимальное значение 4, максимальное 100 символов")
-    private String name;
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "CATEGORY_ID")
     private Long id;
+
+    @Column(name = "CANTEGORY_NAME")
+    @NotBlank(message = "Имя категории не может быть пустым")
+    @Size(min = 4, max = 100, message = "Минимальное значение 4, максимальное 100 символов")
+    private String name;
+
     @Column(name = "CATEGORY_DESC")
     //@Size(max = 150, message = "Максимальное количество 150 символов")
     private String desc;

@@ -1,6 +1,7 @@
 package com.admin.zakaz.vendor.controller;
 
 import com.admin.zakaz.vendor.entity.SubCategoryVendor;
+import com.admin.zakaz.vendor.entity.SubTwoCategoryVendor;
 import com.admin.zakaz.vendor.entity.Vendor;
 import com.admin.zakaz.vendor.entity.СategoryVendor;
 import com.admin.zakaz.vendor.servise.CategoryServise;
@@ -137,6 +138,25 @@ public class VendorController {
         categoryS.getDeleteAll_idSub(category);
         return true;
     }
+
+    // Одиночное и массовое удаление записей из таблицы под категорий
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @RequestMapping(value = "admin/egrul/subtwocategory/delete/all", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public boolean Delete_ALL_Ajax_subTwoCategory(@RequestBody List<SubTwoCategoryVendor> category) {
+        categoryS.getDeleteAll_idSubTwo(category);
+        return true;
+    }
+
+    // Контроллер взаимодействия с модулем JSQTable
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @RequestMapping(value = "admin/egrul/russ", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public List<СategoryVendor> dataObgect() {
+        List<СategoryVendor> catVendor = categoryS.findByName();
+        return catVendor;
+    }
+
 
 
 }

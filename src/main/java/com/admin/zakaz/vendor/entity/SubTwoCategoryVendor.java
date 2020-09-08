@@ -15,7 +15,7 @@ public class SubTwoCategoryVendor implements Serializable {
     private Long id;
     @Column(name = "SUBTWOCAREGORYVENDOR_NAME")
     @NotBlank(message = "Имя подкатегории не может быть пустым YU1")
-    @Size(min = 4, max = 100, message = "Минимальное значение 4, максимальное 150 символов YU2")
+    @Size(min = 2, max = 100, message = "Минимальное значение 4, максимальное 150 символов YU2")
     private String name;
     @Column(name = "SUBTWOCAREGORYVENDOR_DESC")
     @Size(max = 150, message = "Максимальное количество 150 символов YU7")

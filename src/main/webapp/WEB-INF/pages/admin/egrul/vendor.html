@@ -11,7 +11,7 @@
     <script src="/resources/js/js.js" th:src="@{/resources/js/js.js}" type="text/javascript"></script>
 
     <script th:src="@{/resources/js/admin.js}" type="text/javascript"></script>
-
+    <script th:src="@{/resources/js/JSQTable.js}" type="text/javascript"></script>
 
 
     <title>Контрагенты</title>
@@ -40,8 +40,17 @@
         <div class="acc-body">
             <div><span th:replace="~{fragment/vendor/table_category :: table_category}"></span></div>
         </div>
-    </div>
 
+        <div class="acc-head">
+            Категории работ2
+        </div>
+        <div class="acc-body">
+            <div><span th:replace="~{fragment/vendor/table_categoryrabot :: table_categoryrabot}"></span></div>
+        </div>
+
+
+    </div>
+    <div id="catecorytable1"></div>
 
 </div>
 

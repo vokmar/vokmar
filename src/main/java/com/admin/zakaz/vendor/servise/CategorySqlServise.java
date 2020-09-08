@@ -1,9 +1,11 @@
 package com.admin.zakaz.vendor.servise;
 
 import com.admin.zakaz.vendor.entity.SubCategoryVendor;
+import com.admin.zakaz.vendor.entity.SubTwoCategoryVendor;
 import com.admin.zakaz.vendor.entity.СategoryVendor;
 import com.admin.zakaz.vendor.repository.CategoryRepository;
 import com.admin.zakaz.vendor.repository.SubCategoryRepository;
+import com.admin.zakaz.vendor.repository.SubTwoCategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
@@ -27,6 +29,9 @@ public class CategorySqlServise implements CategoryServise {
 
     @Autowired
     private SubCategoryRepository repositoriesSub;
+
+    @Autowired
+    private SubTwoCategoryRepository repositoriesSubTwo;
 
 
     @Override
@@ -61,6 +66,12 @@ public class CategorySqlServise implements CategoryServise {
     @Override
     public boolean getDeleteAll_idSub(List<SubCategoryVendor> categorys) {
         repositoriesSub.deleteAll(categorys);
+        return false;
+    }
+
+    @Override
+    public boolean getDeleteAll_idSubTwo(List<SubTwoCategoryVendor> categorys) {
+        repositoriesSubTwo.deleteAll(categorys);
         return false;
     }
 

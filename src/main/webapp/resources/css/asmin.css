@@ -92,15 +92,27 @@ table {
 }
 
 .content_spisok {
-    min-height: 35px;
+    min-height: 30px;
 
-    height: 35px;
+    height: 30px;
 }
 
 .content_spisok2 {
-    min-height: 35px;
+    min-height: 30px;
     padding-left: 15px;
-    height: 35px;
+    height: 30px;
+}
+
+.content_spisok_subtwo {
+
+    min-height: 30px;
+    padding-left: 35px;
+    height: 30px;
+}
+
+.content_spisok_subtwo:before {
+    content: ' \00B7';
+    color: #007fff;
 }
 
 .spisok {

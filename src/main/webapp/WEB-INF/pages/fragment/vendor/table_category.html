@@ -10,6 +10,7 @@
 <body>
 
 <div th:fragment="table_category">
+
     <div style="margin-bottom: 15px;">
         <table data-sub-category="2" data-type-category="ok" id="category">
             <thead>
@@ -76,15 +77,14 @@
 
             </form>
         </table>
-
+        <script th:inline="javascript">
+            var datas;
+            /*<![CDATA[*/
+            datas =/*[[${catevend}]]*/;
+            /* ]]>*/
+        </script>
 
     </div>
-
-    <script th:inline="javascript">
-        /*<![CDATA[*/
-        var datas =/*[[${catevend}]]*/;
-        /* ]]>*/
-    </script>
 
 
 </div>

@@ -1,5 +1,7 @@
 $(document).ready(function () {
 
+
+
     //прикрепляем клик по заголовкам acc-head
     $('#accordeons .acc-head').on('click', f_acc);
 
@@ -14,6 +16,19 @@ $(document).ready(function () {
         outerHeightTextArea();
 
     }
+
+    $('div[id=catecorytable]').JSQTable({
+        token: $("meta[name='_csrf']").attr("content"),
+        header: $("meta[name='_csrf_header']").attr("content"),
+        url: 'russ',
+        category: 'ok',
+        columncat: 2,
+        thead: ['Наименование работ', 'Описание',],
+        name:['name','desc'],
+        input:['input','textarea'],
+        placeholders:[['Наименование...', 'Описание...'],['Подкатегория...','Описание...'],['Субкатегория...','Описание...']]
+
+    });
 
     var table_name1 = "#egrulname";
     var table_name2 = "#category";
@@ -34,13 +49,9 @@ $(document).ready(function () {
 
     function outerHeightTextArea() {
         // Срабатывает при начальной загрузке всех зарегистрированных таблиц на странице
-        $(table_name).each(function (index, value) { // обходим все таблицы
-            //console.log("*******************************");
-            var tab = $(this).attr('id');
-            $('#' + tab + ' textarea').each(function (index, value) { // обходим все строки
-
+        $('table[data-sub-category]').each(function (index, value) { // обходим все таблицы
+            $('textarea', this).each(function (index, value) { // обходим все строки
                 $(this).outerHeight(16).outerHeight(this.scrollHeight);
-                //console.log('#'+tab+' textarea'+ $(this).attr('placeholder')+' '+$(this).css('height'));
             });
         });
     }
@@ -72,7 +83,7 @@ $(document).ready(function () {
     });
 
     // Добавление и обновление записи таблицы
-    function myfunc(v) {
+    function myfunc(v) { // В v находится элемент input или textarea
         // Получаем id таблицы
         var table_id = v.closest('table').attr("id");
         var table_type = $('#' + table_id).attr('data-type-category');
@@ -108,26 +119,31 @@ $(document).ready(function () {
                     console.log("Меняем значение строки");
                     obj = dataNouCategoru(v);
                 }
-                if(table_type == "ok"){ // категория
+                if (table_type == "ok") { // категория
                     console.log("Меняем значение категории");
-                    obj= dataCategoru(v);
+                    obj = dataCategoru(v);
                 }
                 break;
             }
             case 3: { // Редактирование категории
-                obj= dataCategoru(v);
+                obj = dataCategoru(v);
                 console.log("Добавляем подкатегорию");
                 break;
             }
             case 4: {
-               console.log("Изменение подкатегории");
-                obj= dataCategoru(v);
+                console.log("Изменение подкатегории");
+                obj = dataCategoru(v);
                 break;
             }
 
             case 5: {
                 console.log("Добавляем субкатегорию");
-                obj= dataCategoru(v);
+                obj = dataCategoru(v);
+                break;
+            }
+            case 6: {
+                console.log("Изменяем субкатегорию");
+                obj = dataCategoru(v);
                 break;
             }
 
@@ -150,6 +166,7 @@ $(document).ready(function () {
             },
             success: function (res) {
                 if (res.validated) {
+                    alert('Ошибка');
                     // Очищаем от всех ошибок
                     error_remove(table_id);
                     var val1 = "";
@@ -170,7 +187,7 @@ $(document).ready(function () {
 
                         // Очищаем все элементы которыми удаляют строки: чекбоксы, ссылки в строках и шапке, кроме самой шапки
                         // При добавлении нововой строки это нужно, чтобы появились сразу все чекбоксы и ссылки
-                       $('#' + table_id + ' tr td[id]:not(#hed)').empty();
+                        $('#' + table_id + ' tr td[id]:not(#hed)').empty();
                         $('#' + table_id + ' thead tr a').empty();
 
 
@@ -188,9 +205,9 @@ $(document).ready(function () {
 
                     }
 
-                    if ((identificator == 1||3||5) && table_type == "ok") { // Для редактирования строк подкатегории
-                      //alert(identificator);
-                        podCategory(table_id, res, v, identificator) ;
+                    if ((identificator == 1 || 3 || 5) && table_type == "ok") { // Для редактирования строк подкатегории
+                        //alert(identificator);
+                        podCategory(table_id, res, v, identificator);
                     }
 
                 }
@@ -252,6 +269,7 @@ $(document).ready(function () {
         // Получаем id таблицы
         var table_id = v.closest('table').attr("id");
 
+        var testUpdeteSubTwoCategoru = /^([0-9]+)_([0-9]+)_([0-9]+)$/;
         var testNewSubTwoCategoru = /^[a-z]{3}_[a-z]{4}_([0-9]+)_([0-9]+)$/; // проверка новой субкатегории new_name_123_235 - добавляется новая строка субкатегории
         var testNewSubCategoru = /^[a-z]{3}_[a-z]{4}_([0-9]+)$/; // проверка новой строки подкатегории new_name_123 - добавляется новая строка подкатегории
         var testUpdeteSubCategoru = /^([0-9]+)_([0-9]+)$/; // проверка существующей строки - изменяется подкатегория
@@ -263,39 +281,45 @@ $(document).ready(function () {
         // Редактируется существующая категория
         var resultCategoru = testUpdeteCategoru.exec(str);
 
-         // Редактируется существующая подкатегория
+        // Редактируется существующая подкатегория
         var resultUpdeteSubCategoru = testUpdeteSubCategoru.exec(str);
-         // ДОбавляется новая субкатегория
-        var resultUpdeteSubTwoCategoru = testNewSubTwoCategoru.exec(str);
-
+        // ДОбавляется новая субкатегория
+        var resultNewSubTwoCategoru = testNewSubTwoCategoru.exec(str);
+        var resultUpdeteSubTwoCategoru = testUpdeteSubTwoCategoru.exec(str);
 
         var category;
 
-              // Обновляем значение категории
+        // Обновляем значение категории
         if (resultCategoru != null) {
-            category= eachCategory(table_id, v.attr('id'), false);
+            category = eachCategory(table_id, v.attr('id'), false);
         }
 
         // Обрабатываем добавление новой строки подкатегории
         if (resultNewCategoru != null) { // null если не соответсвует тесту (не новая или изменяемая категория)
-             // получаем объект категория + подкатегории включая новую строку
+            // получаем объект категория + подкатегории включая новую строку
             console.log('НОВАЯ ПОДКАТЕГОрия');
-            category= eachCategory(table_id, resultNewCategoru[1], true);
+            category = eachCategory(table_id, resultNewCategoru[1], true, false, null);
 
         }
 
-         // Обрабатываем обновление строк подкатегории
-        if (resultUpdeteSubCategoru!=null){
+        // Обрабатываем обновление строк подкатегории
+        if (resultUpdeteSubCategoru != null) {
 
-            category= eachCategory(table_id, resultUpdeteSubCategoru[2], false);
+            category = eachCategory(table_id, resultUpdeteSubCategoru[2], false, false, null);
 
         }
 
 
-        if(resultUpdeteSubTwoCategoru!=null){
-            alert('Добавляем новую субкатегорию' +resultUpdeteSubTwoCategoru);
+        if (resultNewSubTwoCategoru != null) {
+            //alert('Добавляем новую субкатегорию' + resultUpdeteSubTwoCategoru);
             //resultUpdeteSubTwoCategoru[2] - id категории
-            category= eachCategory(table_id, resultUpdeteSubTwoCategoru[2], false);
+            category = eachCategory(table_id, resultNewSubTwoCategoru[2], false, true, resultNewSubTwoCategoru[1]);
+        }
+
+        if (resultUpdeteSubTwoCategoru != null) {
+            //alert('Редактируем сущ. субкатегорию' + resultUpdeteSubTwoCategoru);
+            //resultUpdeteSubTwoCategoru[2] - id категории
+            category = eachCategory(table_id, resultUpdeteSubTwoCategoru[3], false, resultUpdeteSubTwoCategoru[2], 'updete');
         }
 
 
@@ -304,35 +328,35 @@ $(document).ready(function () {
         return category;
 
     }
-      /*
-      Функция осуществляет выбор данных конкретной категории
-      Возвращает объект состоящий из категории и подкатегорий
-       */
-    function eachCategory(table_id, Categoru_id, flag) {
+
+    /*
+    Функция осуществляет выбор данных конкретной категории
+    Возвращает объект состоящий из категории и подкатегорий
+     */
+    function eachCategory(table_id, Categoru_id, flag, flag2, flag3) {
 
 
-
-       if(flag) { // Только для добавления новой строки
-           // Выборка данных у новой строки
-           // Формирование данных объекта в части subcategory: [{id:1}]....
-           var id_new = undefined; // Используется для новой строки
-           var name_new = $("#" + table_id + " input[name=name][id=new_name_" + Categoru_id + "]").val(); // Значение подкатегории name текущей строки v
-           var desc_new = $("#" + table_id + " textarea[name=desc][id=new_desc_" + Categoru_id + "]").val(); // Значение подкатегории desc текущей строки v
-       alert(name_new+" "+desc_new);
-       }
-           var category;
+        if (flag) { // Только для добавления новой строки
+            // Выборка данных у новой строки
+            // Формирование данных объекта в части subcategory: [{id:1}]....
+            var id_new = undefined; // Используется для новой строки
+            var name_new = $("#" + table_id + " input[name=name][id=new_name_" + Categoru_id + "]").val(); // Значение подкатегории name текущей строки v
+            var desc_new = $("#" + table_id + " textarea[name=desc][id=new_desc_" + Categoru_id + "]").val(); // Значение подкатегории desc текущей строки v
+            //alert(name_new + " " + desc_new);
+        }
+        var category;
 
         // Получаем категорию, передаем любой объект имеющий нужный id
-        console.log("Передаваемый id "+Categoru_id);
+        //console.log("Передаваемый id " + Categoru_id);
+       //console.log("Передаваемый id подкатегории " + flag3);
         category = dataNouCategoru($("#" + table_id + " tr[id=" + Categoru_id + "]"));
-          console.log("Данные категории :");
-        console.log(category);
+        //console.log("Данные категории :");
+        //console.log(category);
         //Получаем все подкатегории фильтр _125; _659; - нижнее подчеркивание + id категории, кроме последней новой строки включая все input[type=text]
         // В данный массив будут включены также субкатегории
         var obgekt = $("#" + table_id + " input[id $=_" + Categoru_id + "]:not(:last):not(input[type !=text])");
-        console.log("Данные под категории :");
-        console.log(obgekt);
-
+        //console.log("Данные под категории :");
+        // console.log(obgekt);
 
 
         var newCategory = []; // Массив подкатегорий в т.ч. новой строки
@@ -342,12 +366,13 @@ $(document).ready(function () {
 
             obgekt.each(function (index, value) { // проходим по всем существующим строкам и добавляем их в массив
 
+                var valu = $(this).val();
                 var ids = $(this).attr("id");
                 var ig = testDataTableVendor(ids);
-                console.log("тест " + ids);
-                console.log(ig);
+               // console.log("тест " + ids);
+                //console.log(ig);
                 if (ig == 4) {
-                    console.log('Только подкатегория');
+                    //console.log('Только подкатегория');
                     //console.log("Элемент "+index+" id:"+$(this).attr("id")+"  тип "+$(this).localName);
                     var obj = {
                         id: ids.split('_')[0],
@@ -357,50 +382,106 @@ $(document).ready(function () {
                         errorMessages: null,
                         subtwocategory: undefined
                     }
-                    console.log("Сохраняемая в массив подкатегория :");
-                    console.log(obj);
+                    //console.log("Сохраняемая в массив подкатегория :");
+                    //console.log(obj);
                     newCategory.push(obj);
                 }
-                //console.log('data-sub-two-category');
+                //Обработка новых строк субкатегорй
                 //console.log($(this).data('sub-two-category'));
-                if($(this).data('sub-two-category')!=undefined && $(this).val()!=""){
+                if ($(this).data('sub-two-category')) {
+                    var abj12;
                     //console.log('Суб категория ');
-                    var idsubcat=$(this).attr('id').split('_')[2];
-                    var idsubtwo = idsubcat+'_'+$(this).attr('id').split('_')[3];
-                    //console.log($(this).attr('id').split('_')[2]+'_'+$(this).attr('id').split('_')[3]);
-                    var id_new1 = undefined; // Используется для новой строки
-                    var name_new1 = $("#" + table_id + " input[name=name][id=new_name_" + idsubtwo + "]").val(); // Значение подкатегории name текущей строки v
-                    var desc_new1 = $("#" + table_id + " textarea[name=desc][id=new_desc_" + idsubtwo + "]").val(); // Значение подкатегории desc текущей строки v
+                    var idsubcat = $(this).attr('id').split('_')[2];// id категории
+                    var  idso = $(this).attr('id').split('_')[1];// id под категории
+                    var idsubtwo = idsubcat + '_' + $(this).attr('id').split('_')[3]; // id категории
+                    var id_new1;
+                    var name_new1;
+                    var desc_new1;
+                    if (flag2) { // Если новая строка
+                        //console.log('Суб категория новая строка');
+                        id_new1 = undefined; // Используется для новой строки
+                        name_new1 = $("#" + table_id + " input[name=name][id=new_name_" + idsubtwo + "]").val(); // Значение подкатегории name текущей строки v
+                        desc_new1 = $("#" + table_id + " textarea[name=desc][id=new_desc_" + idsubtwo + "]").val(); // Значение подкатегории desc текущей строки v
+                        console.log('Обрабатываем новую. суб. кат  id=' + id_new1 + ' name=' + name_new1 + " desc=" + desc_new1);
+                    }
+                    if (ig == 6) { // Редактирование сущ. суб категории
+                        //alert('Записываем сущ. категорию');
+                        id_new1 = ids.split('_')[0],
+                        name_new1 = $(this).val();
+                        desc_new1 = $("#" + table_id + " textarea[name=desc][id=" + ids + "]").val(); // Значение подкатегории desc текущей строки v
 
-                    newSubTwoCategory.push({
-                        id: id_new1,
-                        name: name_new1,
-                        desc: desc_new1,
-                        validated: true,
-                        errorMessages: null
-                    })
-                   // console.log('newSubTwoCategory');
-                    console.log(newSubTwoCategory);
+                        abj12={
+                            id: id_new1,
+                            name: name_new1,
+                            desc: desc_new1,
+                            validated: true,
+                            errorMessages: null
+                        };
+                        newCategory.forEach(function (value12, index, arr) {
 
-                    newCategory.forEach(function (value,index, arr ) {
-                              console.log(value.id);
-                        if  (value.id==idsubcat) {
-                              if(value.subtwocategory==undefined){
-                                  value.subtwocategory=newSubTwoCategory;
-                              }else{
-                                  value.subtwocategory.push(newSubTwoCategory);
-                              }
+                             if(idso==value12.id) { // Сравниваем id под категорий
+
+                                 if (value12.subtwocategory != undefined) {
+                                     value12.subtwocategory.push(abj12);
+                                 } else {
+                                     value12.subtwocategory = [];
+                                     value12.subtwocategory.push(abj12);
+                                 }
+                             }
+                        });
+                    }
+
+                    if (flag2) { // Добавление первой новой суб категории
+                        abj12 = {
+                            id: id_new1,
+                            name: name_new1,
+                            desc: desc_new1,
+                            validated: true,
+                            errorMessages: null
+                        };
+
+                        var one_new = $(this).closest('tr').attr("id"); // Получаем id текущей строки
+                        var test_id = testDataTableVendor(one_new);
+                        console.log('ПРОВЕРКА');
+                        console.log(one_new);
+                        console.log(test_id);
 
 
-                        }
+                        var test_new = true;
+                        newCategory.forEach(function (subCatVal, index, arr) {
+                            if (subCatVal.id === flag3) {// Определяем подкатегорию flag3 - та подкотегория в которой происходит добавление
 
-                    });
+                                if (subCatVal.subtwocategory == undefined) {
+                                    //alert('Добавляю новую суб катеогоию тут');
+                                    subCatVal.subtwocategory = [];
+                                    subCatVal.subtwocategory.push(abj12);
+                                    test_new = false;
+                                }
 
+                                   /* Записываем новую строку при существующих субкатегориях
+                                   Условия:
+                                   количество субкатеогрий больше 0
+                                   субкатегория проходит тест как новая строка субкатеогории, идентификатор 5
+                                   запись производится только один раз index + 1 == arr.length
+                                   исключаем дублирование при записи первой субкатегории
+                                */
+                                if (subCatVal.subtwocategory.length > 0 && test_id == 5 && index + 1 == arr.length && test_new) {
 
+                                    new_twoCat = {
+                                        id: undefined,
+                                        name: $("#" + table_id + " input[name=name][id=new_name_" + subCatVal.id + "_" + Categoru_id + "]").val(),
+                                        desc: $("#" + table_id + " textarea[name=desc][id=new_desc_" + subCatVal.id + "_" + Categoru_id + "]").val(),
+                                        validated: true,
+                                        errorMessages: null
+                                    };
+                                    subCatVal.subtwocategory.push(new_twoCat);
+                                }
 
+                            }
+                        });
+
+                    } // конец добавления новой первой суб категории
                 }
-
-
 
 
             });
@@ -428,7 +509,7 @@ $(document).ready(function () {
         console.log(category);
 
 
-return category;
+        return category;
 
 
     }
@@ -443,7 +524,7 @@ return category;
         var test3 = /^new_so_([0-9]+)$/; // id новой строки подкатегории id=new_so_1 | id=new_so_256 (для новой строки подкатегории)
         var test5 = /^new_so_([0-9]+)_([0-9]+)$/; // id новой строки суб категории id=new_so_1_3 |  id=new_so_1_3 (для новой строки суб категории)
         var test6 = /^([0-9]+)_([0-9]+)_([0-9]+)$/; // id существующей субкатегории
-        var test7 = /^new_so_([0-9]+)_([0-9]+)$/;
+
         var identificator;
         if (test1.test(id_data)) {
             //alert("Новое значение");
@@ -466,7 +547,7 @@ return category;
         }
 
         if (test5.test(id_data)) {
-            alert("Новая субкатегории");
+            //alert("Новая субкатегории");
             identificator = 5;
         }
 
@@ -478,7 +559,7 @@ return category;
         return identificator;
     }
 
-   // Выводим подкатегории и субкатегории
+    // Выводим подкатегории и подкатегорий
     function podCategory(table_id, res, v, catecory) {
 
 
@@ -527,29 +608,28 @@ return category;
 
         }
 
-
+// Обработка вывода новых субкатегорий
         if (catecory == 3) {
             //alert("Редактируем подкатегорию");
             var test0 = /^new_name_([0-9]+)$/;
             var id_cat = test0.exec($(v).attr("id"));
             var trObg = v.closest('tr'); //  Получаем строку относящуюся к полям ввода
 
-            console.log("Объект с сервера: ")
-            console.log(res);
+            //console.log("Объект с сервера: ")
+            //console.log(res);
             var iy = res.subcategory.length; // Количество элементов подкатегории
             // Переименовываем строку, устанавливаем необходимый id
-            $('#' + table_id + " tr[id=new_so_"+id_cat[1]+"]").attr('id', res.subcategory[iy-1].id+"_"+id_cat[1]);
-            v.attr('id', res.subcategory[iy-1].id+"_"+id_cat[1]); // Меняем id для input
+            $('#' + table_id + " tr[id=new_so_" + id_cat[1] + "]").attr('id', res.subcategory[iy - 1].id + "_" + id_cat[1]);
+            v.attr('id', res.subcategory[iy - 1].id + "_" + id_cat[1]); // Меняем id для input
 
-            $('#' + table_id + " textarea[id=new_desc_"+id_cat[1]+"]").attr('id', res.subcategory[iy-1].id+"_"+id_cat[1]); // Меняем id для textarea
-             // Выбираем ячейку с id delete_456 (id- категориии) и меняем у этой строки id ячейки на id - подкатегории
+            $('#' + table_id + " textarea[id=new_desc_" + id_cat[1] + "]").attr('id', res.subcategory[iy - 1].id + "_" + id_cat[1]); // Меняем id для textarea
+            // Выбираем ячейку с id delete_456 (id- категориии) и меняем у этой строки id ячейки на id - подкатегории
             // Это позволяет у добавляемых подкатегорий отбражать checked сразу
-            $('#' + table_id + ' tr td[id=delete_'+id_cat[1]+']').attr('id', res.subcategory[iy-1].id);
-
+            $('#' + table_id + ' tr td[id=delete_' + id_cat[1] + ']').attr('id', res.subcategory[iy - 1].id);
 
 
             // добавляем скрытую строку к вновь добавленной категории, чтобы по + появлялась новая строка
-            $('#' + table_id+" tr[id="+res.subcategory[iy-1].id+"_"+id_cat[1]+"]").after(
+            $('#' + table_id + " tr[id=" + res.subcategory[iy - 1].id + "_" + id_cat[1] + "]").after(
                 '<tr id=new_so_' + res.id + '  data-tr-id=' + res.id + ' >' +
                 '<td><input id=new_name_' + res.id + ' placeholder="Новая подкатегория..." class=ft  type=text value="" name="name"/>' +
                 '<td><textarea  id=new_desc_' + res.id + '  placeholder="Новое описание..." rows="1" class=ft name="desc"></textarea></td>' +
@@ -558,53 +638,62 @@ return category;
 
             // Выводить субкатегории нужно после подкатегории, чтобы был правильный порядок строк.
             // Доюавляем/меняем значение идентификатор подкатегории data-sub-cat
-            trObg.attr('data-sub-cat',res.subcategory[iy-1].id);
+            trObg.attr('data-sub-cat', res.subcategory[iy - 1].id);
             // Если таблица с суб категориями, выводим знак +
             //console.log('data-sub-category');
             //console.log($('#' + table_id).data('sub-category'));
-            if($('#' + table_id).data('sub-category')==2) {
-                console.log('Отправляем на декорацию');
+            if ($('#' + table_id).data('sub-category') == 2) {
+                //console.log('Отправляем на декорацию');
                 decorElemCount(trObg);
             }
 
 
-
-
-
-
-
         }
-
+            // Обработка вывода новых субкатегорий
         if (catecory == 5) {
             //alert('Обновляем значение субкатегории');
+            console.log('Данные с сервера');
             console.log(res);
+
+
             // Из массива категорий выбираем те, у которых subtwocategory больше 0
             res.subcategory.forEach(function (value) {
                 /*Меняем
                 id и data-tr-id:  c new_so_459_45 и 459_45 на 14_459_45 и 14_459_45
                  */
                 if (value.subtwocategory != null) {
-                    //alert("Под категория "+value.name+" имеет "+value.subtwocategory.length+" субкатеогрию");
 
-                    value.subtwocategory.forEach(function (values) {
-                        alert('tr[id=new_so_' + value.id + '_' + res.id + ']' + ' #' + table_id);
+                     // Выполняем корректровку и добавление новой строки только к той которую редактировал пользователь
+                    if (v.attr('id') == ('new_name_' + value.id + '_' + res.id)) {
+                        // Получаем последний элемент, он же является новым добавленным элементом
+                        var last_obgect = value.subtwocategory[value.subtwocategory.length - 1];
                         // Меняем id строки
                         $('tr[id=new_so_' + value.id + '_' + res.id + ']', '#' + table_id).attr(
                             {
-                                'id': values.id + '_' + value.id + '_' + res.id,
-                                'data-tr-id': values.id + '_' + value.id + '_' + res.id
+                                'id': last_obgect.id + '_' + value.id + '_' + res.id,
+                                'data-tr-id': value.id + '_' + res.id,
+                                'data-sub-two-category': last_obgect.id + '_' + value.id + '_' + res.id
                             });
                         // Меняем id содержимого первой ячейки
-                        $('[id=new_name_' + value.id + '_' + res.id + ']', '#' + table_id).attr({'id': values.id + '_' + value.id + '_' + res.id});
+                        $('[id=new_name_' + value.id + '_' + res.id + ']', '#' + table_id).attr({'id': last_obgect.id + '_' + value.id + '_' + res.id});
 
-                        // Меняем id содержимого торой ячейки
-                        $('[id=new_desc_' + value.id + '_' + res.id + ']', '#' + table_id).attr({'id': values.id + '_' + value.id + '_' + res.id});
+                        // Меняем id содержимого второй ячейки
+                        $('[id=new_desc_' + value.id + '_' + res.id + ']', '#' + table_id).attr({'id': last_obgect.id + '_' + value.id + '_' + res.id});
                         // Меняем id содержимого последней ячейки (в ней хранится чекбокс на удаление)
-                        $('[id=delete_' + value.id + '_' + res.id + ']', '#' + table_id).attr({'id': 'delete_' + values.id + '_' + value.id + '_' + res.id});
+                        $('[id=delete_' + value.id + '_' + res.id + ']', '#' + table_id).attr({'id': last_obgect.id + '_' + value.id + '_' + res.id});
 
-                    });
+                          // Добавляем новую строку при добавдени новой субкатегории
+                        $("tr[id=" + last_obgect.id + "_" + value.id + "_" + res.id + "]", '#' + table_id).after('<tr style="" data-tr-id=' + value.id + "_" + res.id + ' id=new_so_' + value.id + "_" + res.id + '>' +
+                            '<td><div class="content_spisok_subtwo"><input class=ft name="name" placeholder="Значение..." data-sub-two-category="name"  id=new_name_' + value.id + "_" + res.id + ' type=text value=""/></div> </td>' +
+                            '<td><textarea class=ft data-min-rows="1" name="desc" data-sub-two-category="desc" placeholder="Описание..." rows="1"' +
+                            'id=new_desc_' + value.id + "_" + res.id + '></textarea></td>' +
+                            '<td style="border: 0px" id=delete_' + value.id + "_" + res.id + '></td></tr>'
+                        );
+                    }
                 }
             });
+
+
         }
     }
 
@@ -622,8 +711,8 @@ return category;
                 }
             },
             'mouseleave': function (e) {
-                  // В текущей строке $(this) находим ссылку с идентификатором on_delete_vendor и удаляем ее
-               $(this).find('a[id=on_delete_vendor]').remove();
+                // В текущей строке $(this) находим ссылку с идентификатором on_delete_vendor и удаляем ее
+                $(this).find('a[id=on_delete_vendor]').remove();
 
             }
         },
@@ -675,38 +764,38 @@ return category;
 // Обрабока нажатия чекбоксов в теле таблицы (кроме шапки)
     $(document).on('click', table_name_on_click, function (e) {
 
-        var tab_id_mouseenter = $(this).closest('table').attr("id"); // Определяем id таблицы в которой проиошло событие
+            var tab_id_mouseenter = $(this).closest('table').attr("id"); // Определяем id таблицы в которой проиошло событие
             var col_ceh = 0; // общее количество heckbox у строк, кроме шапки
 
-        $('#' + tab_id_mouseenter + ' tbody tr input[type=checkbox]').each(function (index, value) {
+            $('#' + tab_id_mouseenter + ' tbody tr input[type=checkbox]').each(function (index, value) {
                 col_ceh = col_ceh + 1;
             });
 
             // Выбраны все чекбоксы
-        if ($('#' + tab_id_mouseenter + ' tbody tr :checkbox:checked').length == col_ceh) {
-            $('#' + tab_id_mouseenter + '  thead tr input[type=checkbox]').prop('checked', true);
+            if ($('#' + tab_id_mouseenter + ' tbody tr :checkbox:checked').length == col_ceh) {
+                $('#' + tab_id_mouseenter + '  thead tr input[type=checkbox]').prop('checked', true);
             }
 
             // Выбрано несколько чекбоксов
-        if ($('#' + tab_id_mouseenter + ' tbody tr :checkbox:checked').length < col_ceh) {
+            if ($('#' + tab_id_mouseenter + ' tbody tr :checkbox:checked').length < col_ceh) {
 
                 // Очистка шапки от элементов
-            delete_header_table(true, tab_id_mouseenter);
+                delete_header_table(true, tab_id_mouseenter);
 
 
                 //Вставляем в шапку ссылку на удаление нескольких строк
-            $('#' + tab_id_mouseenter + ' thead tr').append("<div class='div_table_delete'></div>");
-            $('#' + tab_id_mouseenter + ' thead tr div.div_table_delete').append("<input class='cehed_all_delete_a' id=del_all_header type=checkbox> <label  for=del_all_header></label>");
-            $('#' + tab_id_mouseenter + ' thead tr div.div_table_delete').append('<a id=on_delete_all_vendor href="#">' +
+                $('#' + tab_id_mouseenter + ' thead tr').append("<div class='div_table_delete'></div>");
+                $('#' + tab_id_mouseenter + ' thead tr div.div_table_delete').append("<input class='cehed_all_delete_a' id=del_all_header type=checkbox> <label  for=del_all_header></label>");
+                $('#' + tab_id_mouseenter + ' thead tr div.div_table_delete').append('<a id=on_delete_all_vendor href="#">' +
                     '<img src="../../resources/image/delete_str.png" width="20" \n' +
                     '  height="12" alt="Удалить"></a>');
 
 
             }
             // Если не выбрано ни одного чекбокса
-        if ($('#' + tab_id_mouseenter + ' tr :checkbox:checked').length == 0) {
+            if ($('#' + tab_id_mouseenter + ' tr :checkbox:checked').length == 0) {
                 // Очистка шапки от элементов
-            delete_header_table(false, tab_id_mouseenter);
+                delete_header_table(false, tab_id_mouseenter);
                 // добавляем боковую сылку на данную строку
                 insert_lable_delete(this);
             }
@@ -728,13 +817,6 @@ return category;
         }
     }
 
-    $(document).on('click', '.cehed_all_delete', function () {
-        if ($(this).is(':checked')) {
-            //alert("установлен");
-        } else {
-            //alert("не установлен");
-        }
-    })
 
 
 // Обработка нажатия на ссылку удаляющую несколько строк или одну строку
@@ -743,23 +825,32 @@ return category;
 
         var checked = []; // массив удаляемых категорий
         var checked1 = []; // массив удаляемых подкатегорий
+        var checked2 = []; // массив удаляемых субкатегорий
         var checkboxData = []; // массив для хранения всех нажатых чекбоксов
         if ($('#' + tab_id_mouseenter + ' tbody tr :checkbox:checked').length == 0) { // Обработка щелчка по ссылке
 
             if (testDataTableVendor($(this).closest('tr').attr("id")) == 2) { // щелчек на удаление категории
-                var arrData = hrefCategoryDelete(this, checkboxData);
+                //alert(this);
+                var arrData = hrefCategoryDelete(this, checkboxData); // checkboxData == 0
                 checked = arrData[0];
                 console.log('Удаляемая категория ');
                 console.log(checked); // Нажатие на одиночную ссылку для удаления категоиии и подкатегорий
                 deleteAll_Id(checked, tab_id_mouseenter);
-                if (arrData[1] != null && arrData[1].length>0) {
+                if (arrData[1] != null && arrData[1].length > 0) { // Удаление подкатегорий
                     checked1 = arrData[1];
                     console.log('Удаляемые под категория ');
                     console.log(checked1); // Нажатие на одиночную ссылку для удаления подкатегорий
                     deleteAll_Id(checked1, 'subcategory');
                 }
+                if (arrData[2] != null && arrData[2].length > 0) { // Удаление субкатегорий
+                    checked2 = arrData[2];
+                    console.log('Удаляемые суб категории ');
+                    console.log(checked2); // Нажатие на одиночную ссылку для удаления подкатегорий
+                    deleteAll_Id(checked2, 'subtwocategory');
+                }
             }
-            if (testDataTableVendor($(this).closest('tr').attr("id"))==4) { // щелчек на удалени подкатегории
+            if (testDataTableVendor($(this).closest('tr').attr("id")) == 4) { // щелчек на удалени подкатегории
+                //alert(this);
                 var arrData = hrefCategoryDelete(this, checkboxData);
                 console.log('Входной массив');
                 console.log(arrData);
@@ -767,6 +858,24 @@ return category;
                 console.log('Удаляемые под категория одиночная ');
                 console.log(checked1); // Нажатие на одиночную ссылку для удаления подкатегорий
                 deleteAll_Id(checked1, 'subcategory');
+
+                if (arrData[2] != null && arrData[2].length > 0) { // Удаление субкатегорий
+                    checked2 = arrData[2];
+                    console.log('Удаляемые суб категории ');
+                    console.log(checked2); // Нажатие на одиночную ссылку для удаления подкатегорий
+                    deleteAll_Id(checked2, 'subtwocategory');
+                }
+            }
+            if (testDataTableVendor($(this).closest('tr').attr("id")) == 6) { // щелчек на удалени субкатегории
+               // alert("Удаляем субкатегорию");
+                //alert(this);
+                var arrData = hrefCategoryDelete(this, checkboxData);
+                if (arrData[2] != null && arrData[2].length > 0) { // Удаление субкатегорий
+                    checked2 = arrData[2];
+                    console.log('Удаляемая суб категория ');
+                    console.log(checked2); // Нажатие на одиночную ссылку для удаления подкатегорий
+                    deleteAll_Id(checked2, 'subtwocategory');
+                }
             }
 
 
@@ -776,24 +885,26 @@ return category;
             });
             var arrData = hrefCategoryDelete(this, checkboxData); // получаем массив из 2-х элементов
 
-            console.log('Входной массив');
-            console.log(arrData);
+            //console.log('Входной массив');
+            //console.log(arrData);
 
-             // первый элемент 0 - категории
+            //arrData[категория, второй, третий]
             if (arrData[0] != null && arrData[0].length > 0) { // Проверяем категорию
                 checked = arrData[0];
-                console.log('Удаляемые  категории ');
-                console.log(checked); // Нажатие на одиночную ссылку для удаления подкатегорий
                 deleteAll_Id(checked, tab_id_mouseenter);
             }
-             // выторой элемент 1 - подкатегории
+            //arrData[первый, подкатегория, третий]
             if (arrData[1] != null && arrData[1].length > 0) { // Проверяем подкатегорию
                 checked1 = arrData[1];
-                console.log('Удаляемые под категория ');
-                console.log(checked1); // Нажатие на одиночную ссылку для удаления подкатегорий
-
                 deleteAll_Id(checked1, 'subcategory');
             }
+
+            //arrData[первый, второй, субкатегория]
+            if (arrData[2] != null && arrData[2].length > 0) { // Проверяем подкатегорию
+                checked2 = arrData[2];
+                deleteAll_Id(checked2, 'subtwocategory');
+            }
+
         }
         //console.log(checked);
 
@@ -804,124 +915,201 @@ return category;
         vokmar.error.remove(); // при удалении строки(строк) очищаем все сообщения об ошибке, выделения ошибо остаются
     });
 
-     // Обработка нажатия одиночной ссылки
+    // Обработка нажатия одиночной ссылки
     // Функция определяет у стрки является ли она категорией или подкатегорией
     // Возвращается или список удаляемых подкатегорий или вся категория со списокм удаляемых подкатегрий
-    function hrefCategoryDelete(t,arrData) {  // t - ссылка на объект таблицы data - массив удаляемых категорий и подкатегорий
+    function hrefCategoryDelete(t, arrData) {  // t - ссылка на объект таблицы arrdata - массив удаляемых категорий и подкатегорий
         var tab_id_mouseenter = $(t).closest('table').attr("id");
-       //console.log('tab_id_mouseenter '+tab_id_mouseenter);
+        //console.log('tab_id_mouseenter '+tab_id_mouseenter);
         var testObgect1 = []; // Категория
         var testObgect2 = []; // Подкатегория
+        var testObgect3 = []; // Субкатегория
         var arrayObject = []; // Общий массив для отправки
         // console.log(arrData.length);
         if (arrData.length > 0) { // Если массив >0 значит были выбраны чекбоксы
-            console.log('arrData ' + arrData);
+            //console.log('arrData ' + arrData);
 
             arrData.forEach(function (elem) {
-                console.log('эудаляемый элемент');
-                console.log(elem);
+                //console.log('эудаляемый элемент');
+                //console.log(elem);
                 var testIds = testDataTableVendor(elem); // Может быть 2 значения: 2 - категория; 4 - подкатегоия
-                console.log('тип удаляемого элемента');
-                console.log(testIds);
+                //console.log('тип удаляемого элемента');
+                //console.log(testIds);
 
                 if (testIds == 4) { // элемент является подкатегорией
                     testObgect2.push({id: elem.split('_')[0]}); // Выбираем id подкатегории
+                    var dataObject = $('tr', '#' + tab_id_mouseenter).filter('[id $=' + elem + ']:not([id ^=new_so])');
+                    dataObject.each(function (index, value) { // Сохраняем все id подкатегорий
+                        if (testDataTableVendor($(this).attr('id'))==6) {
+                            testObgect3.push({id: $(this).attr('id').split('_')[0]}); // Выбираем id субкатегории (testObgect3)
+                        }
+                    });
                 }
 
                 if (testIds == 2) { // элемент является категорией
-                    // Выбираем категорию и все его подкатегории
+                    // Выбираем категорию и все его подкатегории и субкатегории
                     var dataObject = $('tr', '#' + tab_id_mouseenter).filter('[id $=' + elem + ']:not([id ^=new_so])');
                     testObgect1.push({id: elem}); // Сохраняем id категории
 
                     dataObject.each(function (index, value) { // Сохраняем все id подкатегорий
-                        if ($(this).attr('id').split('_')[0] != elem) { // проверяем, чтобы неба выбрана категория
-                            testObgect2.push({id: $(this).attr('id').split('_')[0]}); // Выбираем id подкатегории
+
+                        if (testDataTableVendor($(this).attr('id'))==4) {
+                            testObgect2.push({id: $(this).attr('id').split('_')[0]}); // Выбираем id подкатегории (testObgect2)
                         }
+                        if (testDataTableVendor($(this).attr('id'))==6) {
+                            testObgect3.push({id: $(this).attr('id').split('_')[0]}); // Выбираем id субкатегории (testObgect3)
+                        }
+
                     });
                 }
+
+                if (testIds == 6) { // элемент является субкатегорией
+                    testObgect3.push({id: elem.split('_')[0]}); // Выбираем id субкатегории (testObgect3)
+                }
+
             });
 
             arrayObject.push(testObgect1);
             arrayObject.push(testObgect2);
+            arrayObject.push(testObgect3);
 
-        }else { // иначе значит был щелчек на одиночной ссылки категори или подкатегории
-            console.log('Одиночная ссылка');
-            console.log('arrData ' + null);
+        } else { // иначе значит был щелчек на одиночной ссылки категори или подкатегории
+            //console.log('Одиночная ссылка');
+            //console.log('arrData ' + null);
 
             // Определение, что выбрано категория или подкатегория
             // Определяем тип id
             // 325 - категрия
             // 256_325 - подкатегория
+            // 256_325_12 - субкатогория
             var id_tr = $(t).closest('tr').attr("id");
-            var tab_id = id_tr; // Если выбрали категорию, будет 1 значение, если подкатеорию 2 значения 12_45
+            var tab_id = id_tr; // Если выбрали категорию, будет 1 значение, если подкатеорию 2 значения 12_45, если суб категория 3 значения 12_45_56
             // console.log('tab_id '+tab_id);
-            var testId = testDataTableVendor(tab_id); // Может быть 2 значения: 2 - категория; 4 - подкатегоия
-            console.log('testId '+testId);
+            var testId = testDataTableVendor(tab_id); // Может быть 2 значения: 2 - категория; 4 - подкатегоия; 6 - субкатегория
+            //console.log('testId ' + testId);
 
-            if (testId == 4) { // Цель проверки - определение категории, чтобы можно было при щелчке на подкатегории выбрать все строки категории в т.ч. подкатегории
-                tab_id = tab_id.split('_')[tab_id.split('_').length - 1]; // получаем последний элемент массива 12_45
-            }
-            // Выбираем категорию и все его подкатегории
-            var dataObject = $('tr', '#' + tab_id_mouseenter).filter('[id $=' + tab_id + ']:not([id ^=new_so])');
+           // Объект для храниния категории со всеми подэлементами или подкатегории со всеми подэлементами или субкатегорий
+            var dataObject;
 
-            // Выбиракм строки
-
+           console.log(tab_id);
 
             switch (testId) { // проверяем, что удаляет пользователь
-                case 2: {
+                case 2: { // получаем id категории (testObgect1); id подкатегории (testObgect2); id субкатегории (testObgect3)
+                    // при значении 2 в tab_id будет 1 значение категоирии
+                    // если подкатегории и субкатегории существуют, они попадут в массив dataObject
+                    dataObject = $('tr', '#' + tab_id_mouseenter).filter('[id $=' + tab_id + ']:not([id ^=new_so])');
                     testObgect1.push({id: id_tr}); // Сохраняем id категории
 
                     dataObject.each(function (index, value) {
-                        if ($(this).attr('id').split('_')[0] != tab_id) {
-                            testObgect2.push({id: $(this).attr('id').split('_')[0]}); // Выбираем id подкатегории
+                        if (testDataTableVendor($(this).attr('id'))==4) {
+                            testObgect2.push({id: $(this).attr('id').split('_')[0]}); // Выбираем id подкатегории (testObgect2)
+                        }
+                        if (testDataTableVendor($(this).attr('id'))==6) {
+                            testObgect3.push({id: $(this).attr('id').split('_')[0]}); // Выбираем id субкатегории (testObgect3)
                         }
                     });
-                    arrayObject.push(testObgect1);
-                    arrayObject.push(testObgect2);
-
-
+                    arrayObject.push(testObgect1); // категория
+                    arrayObject.push(testObgect2); // подкатегоря
+                    arrayObject.push(testObgect3); // субкатегория
                 }
-                break;
+                    break;
                 case 4: {
-
-                    arrayObject.push(testObgect1); // тут он всегда пустой
-                    testObgect2.push({id: id_tr.split('_')[0]});
+                    // arrayObject[категория, подкатегория, субкатегория]
+                    // при значении 4 в tab_id будет 1 значение подкатегория_категоирии 12_45
+                    // если субкатегории существуют, они попадут в массив dataObject
+                    dataObject = $('tr', '#' + tab_id_mouseenter).filter('[id $=' + tab_id + ']:not([id ^=new_so])');
+                    testObgect2.push({id: id_tr.split('_')[0]}); // записываем id подкатегории
+                    dataObject.each(function (index, value) {  // записываем id субкатегоррии если они есть
+                         if (testDataTableVendor($(this).attr('id'))==6) {
+                            testObgect3.push({id: $(this).attr('id').split('_')[0]}); // Выбираем id субкатегории
+                        }
+                    });
+                    arrayObject.push(testObgect1); // arrayObject[null, подкатегория, субкатегория] - при удалении подкатегории и суб категоиии категория не удаляется null
                     arrayObject.push(testObgect2); // Выбираем id подкатегории
+                    arrayObject.push(testObgect3); // субкатегория
                 }
-                break;
+                 break;
+
+                case 6:{
+
+                    testObgect3.push({id: id_tr.split('_')[0]}); // Выбираем id субкатегории
+                    //console.log(id_tr.split('_')[0]);
+                    arrayObject.push(testObgect1); // arrayObject[null, подкатегория, субкатегория]
+                    arrayObject.push(testObgect2); // arrayObject[null, null, субкатегория]
+                    arrayObject.push(testObgect3); // субкатегория
+                }
+                    break;
             }
 
         }
- console.log(arrayObject);
-return arrayObject;
-}
+
+        console.log(arrayObject);
+        return arrayObject;
+    }
 
 
-
-
-
-
-// Обработка нажатия на + списка (подкатегории)
+// Обработка нажатия на + списка (подкатегории, субкатегории)
     $(document).on('click', '.spisok a', function (e) {
         e.preventDefault();
         // Проверяем какой симво при нажатии и устанавливаем соотвествующий
-        if ($(this).text() == "+")
-            $(this).html("&ndash;"); // минус
-        else
-            $(this).text('+');
-
+        var aClick = $(this);
+        if (aClick.text() == "+") {
+            aClick.html("&ndash;"); // минус
+        }
+        else {
+            aClick.text('+');
+        }
+        var trStr = $(this).closest('tr');
         //Ищем ближайшую строку и получаем ее id
         var id_tr = $(this).closest('tr').attr('id');
         //Ищем ближайшую таблицу и получаем ее id
         var id_table = $(this).closest('table').attr('id');
         //Для строк конкретной таблицы с элементом data-tr-id=id_tr выполняем скрытие/открытие строк
-        $('#' + id_table + ' tr[data-tr-id=' + id_tr + ']').slideToggle(200);
+
+        switch (testDataTableVendor(id_tr)) {
+            case 2: { // Раскрытие категорий
+            $('#' + id_table + ' tr[data-tr-id $=' + id_tr + ']').filter(function (index) {
+                var flag=false;
+                /*
+                Пре нажатии + выводим все подкатегории и новую строку для добавления категории
+                 */
+                if (testDataTableVendor($(this).attr('id'))==4) flag=true; // Выбираем под категорию для открытия/закрытия
+                if (testDataTableVendor($(this).attr('id'))==3) flag=true; // Выбираем новую строку категории открытия/закрытия
+                       // Не раскрываем субкатегории при открытии категории (первое нажатие на +)
+                if ((testDataTableVendor($(this).attr('id'))==6)&& ($(this).css('display')=='none')){flag=false;}
+                      // Открытая субкатегория, значит ее закрываем
+                if ((testDataTableVendor($(this).attr('id'))==6)&& ($(this).css('display')!='none')){flag=true;}
+                     // Новая строка субкатегории
+                if ((testDataTableVendor($(this).attr('id'))==5)&& ($(this).css('display')!='none'))flag=true;
+
+                return flag;
+            }).slideToggle(200);
+
+               // Переклчение знака "+" с минуса на плюс
+                if (aClick.text() == "+") {
+                    //Выбираем все ссылки в подкатегориях
+                    $('#' + id_table + ' tr[data-tr-id =' + id_tr + ']').find('a').each(function (val, ind) {
+                        $(this).text('+');
+                    });
+                }
+            }
+                break;
+            case 4: { // Раскрытие подкатегорий
+                $('#' + id_table + ' tr[data-tr-id=' + id_tr + ']').slideToggle(200);
+            }
+                break;
+        }
+
+
+
         // Для открытых строк производим пересчет высоты элементов textarea
         outerHeightTextArea();
 
     });
 
-   readOnlycateciry();
+
+
+    readOnlycateciry();
 
     // выводим субкатегорию в таблице и отправляем их на оформление
     function readOnlycateciry() {
@@ -948,40 +1136,39 @@ return arrayObject;
         });
 
     }
-        function decorElemCount(arrayElem) {
+
+    function decorElemCount(arrayElem) {
 
 
+        arrayElem.each(function (index, value) {
+            //console.log('ДЕКОР');
+            //console.log(this);
+            // Выборка первой ячейки строки
+            var tdElem = $(this).find('td').eq(0);
 
-            arrayElem.each(function (index, value) {
-                //console.log('ДЕКОР');
-                //console.log(this);
-                    // Выборка первой ячейки строки
-                var tdElem = $(this).find('td').eq(0);
-                // Оборачиваем текстовое поле в класс input_spisok
-                tdElem.find('input').wrap('<div class="input_spisok"/>');
-                // добавляем в div class=input_spisok первый элемент со знаком +
-                tdElem.find('.input_spisok').prepend('<div class="spisok" id=""><a href="#">+</a></div>');
-                // Оборачиваем все содержимое ячейки (div с class=input_spisok)
-                tdElem.find('.input_spisok').wrap('<div class="content_spisok2"/>');
+            // Оборачиваем текстовое поле в класс input_spisok
+            tdElem.find('input').wrap('<div class="input_spisok"/>');
+            // добавляем в div class=input_spisok первый элемент со знаком +
+            tdElem.find('.input_spisok').prepend('<div class="spisok" id=""><a href="#">+</a></div>');
+            // Оборачиваем все содержимое ячейки (div с class=input_spisok)
+            tdElem.find('.input_spisok').wrap('<div class="content_spisok2"/>');
 
-                // Добавляем строку с вводом нового значения
-                // Тип id у строки id=new_so_456_458
-                // new_so_ - признак, что это новое значение
-                // 456 - подкатегория
-                // 458 - категория
+            // Добавляем строку с вводом нового значения
+            // Тип id у строки id=new_so_456_458
+            // new_so_ - признак, что это новое значение
+            // 456 - подкатегория
+            // 458 - категория
 
-                $(this).after('<tr style="display: none;" data-tr-id='+$(this).attr('id')+' id=new_so_'+$(this).attr('id')+'>'+
-                    '<td><input class=ft name="name" placeholder="Новое значение...12" data-sub-two-category="name"  id=new_name_'+$(this).attr('id') +' type=text value=""/> </td>' +
-                    '<td><textarea class=ft data-min-rows="1" name="desc" data-sub-two-category="desc" placeholder="Новое описание...12" rows="1"' +
-                    'id=new_desc_'+$(this).attr('id')+'></textarea></td>' +
-                    '<td style="border: 0px" id=delete_'+$(this).attr('id')+'></td></tr>'
-                );
-
-
+            $(this).after('<tr style="display: none;" data-tr-id=' + $(this).attr('id') + ' id=new_so_' + $(this).attr('id') + '>' +
+                '<td><div class="content_spisok_subtwo"><input class=ft name="name" placeholder="Значение..." data-sub-two-category="name"  id=new_name_' + $(this).attr('id') + ' type=text value=""/> </div></td>' +
+                '<td><textarea class=ft data-min-rows="1" name="desc" data-sub-two-category="desc" placeholder="Описание..." rows="1"' +
+                'id=new_desc_' + $(this).attr('id') + '></textarea></td>' +
+                '<td style="border: 0px" id=delete_' + $(this).attr('id') + '></td></tr>'
+            );
 
 
-            });
-        }
+        });
+    }
 
 
     // Модуль Jqueru загрузка субкатегорий в таблицу
@@ -990,23 +1177,21 @@ return arrayObject;
         $.fn.dataCat = function () {
             var idtable = this.attr('id');
             // Получаем объект JSON содержащий все объекты загружаемой таблицы
-            var objektJson =  JSON.parse(datas);
+            var objektJson = JSON.parse(datas);
             // Выполняем манипуляци, только если объект не пустой
-            if(objektJson!=null)
-            {
-                 //КАТЕГОРИЯ
+            if (objektJson != null) {
+                //КАТЕГОРИЯ
                 objektJson.forEach(function (value) {
-                    console.log(value.name);
-                    if(value.subcategory!=null) {
+                    //console.log(value.name);
+                    if (value.subcategory != null) {
                         //ПОД КАТЕГОРИЯ
                         value.subcategory.forEach(function (value1) {
-                            console.log(' -' + value1.name);
+                            //console.log(' -' + value1.name);
                             //СУБ КАТЕГОРИЯ
                             value1.subtwocategory.forEach(function (value2) {
-                                console.log('  --' + value2.name);
-                                insert(value.id,value1.id,value2);
+                                //console.log('  --' + value2.name);
+                                insert(value.id, value1.id, value2);
                             });
-
 
                         });
                     }
@@ -1015,14 +1200,14 @@ return arrayObject;
             }
 
 
-            function insert(cat1,cat2,cat3) {
-                         alert(cat1+' '+cat2+' '+cat3);
-                console.log($('#'+idtable).find('tr[id=new_so_'+cat2+'_'+cat1+']'));
-                $('#'+idtable).find('tr[id=new_so_'+cat2+'_'+cat1+']').before('<tr style="display: none;" data-tr-id='+cat2+'_'+cat1+' id='+cat3.id+'_'+cat2+'_'+cat1+' >'+
-                    '<td><input class=ft name="name" placeholder="Новое значение..." data-sub-two-category="name"  id='+cat3.id+'_'+cat2+'_'+cat1+ ' type=text value='+cat3.name+' /> </td>' +
-                    '<td><textarea class=ft data-min-rows="1" name="desc" data-sub-two-category="desc" id='+cat3.id+'_'+cat2+'_'+cat1+ ' placeholder="Новое описание..." rows="1"' +
-                    '></textarea></td>' +
-                    '<td style="border: 0px" id=delete_'+cat3.id+'_'+cat2+'_'+cat1+'></td></tr>'
+            function insert(cat1, cat2, cat3) {
+                //alert(cat1 + ' ' + cat2 + '  Имя' + cat3.name);
+               // console.log($('#' + idtable).find('tr[id=new_so_' + cat2 + '_' + cat1 + ']'));
+                $('#' + idtable).find('tr[id=new_so_' + cat2 + '_' + cat1 + ']').before('<tr style="display: none;"    data-tr-id=' + cat2 + '_' + cat1 + ' id=' + cat3.id + '_' + cat2 + '_' + cat1 + ' data-sub-two-category=' + cat3.id + '_' + cat2 + '_' + cat1 +' >' +
+                    '<td><div class="content_spisok_subtwo"><input class=ft name="name" placeholder="Значение..." data-sub-two-category="name"  id=' + cat3.id + '_' + cat2 + '_' + cat1 + ' type=text value="' + cat3.name + '" /> </div></td>' +
+                    '<td><textarea class=ft data-min-rows="1" name="desc" data-sub-two-category="desc" id=' + cat3.id + '_' + cat2 + '_' + cat1 + ' placeholder="Описание..." rows="1"' +
+                    '  >'+cat3.desc+'</textarea></td>' +
+                    '<td style="border: 0px" id=' + cat3.id + '_' + cat2 + '_' + cat1 + '></td></tr>'
                 );
 
             }
@@ -1032,17 +1217,10 @@ return arrayObject;
     })(jQuery)
 
 
-
     $(table_name2).dataCat();
 
 
 
-
-
-
-
-
-}); // Конец загрузки
 
 
 function error_remove(tab) {
@@ -1053,56 +1231,38 @@ function error_remove(tab) {
 }
 
 // Добавляем checkbox к строкам
-function insert_checbox(id_table) { // Идентификатор id без символа #
-    var i = $('#' + id_table).find('tr').length; //количество строк таблицы включая шапку, скрытые и последнюю строку
-       //console.log("Количество строк таблицы "+i);
+    function insert_checbox(id_table) { // Идентификатор id без символа #
+        var i = $('#' + id_table).find('tr').length; //количество строк таблицы включая шапку, скрытые и последнюю строку
 
-    if ($('#' + id_table + ' tr input[type=checkbox]').length == 0) { // выводим чекбокс, чтолько если его нет
-        $('#' + id_table + ' tr').each(function (index, value) { //в цикле проходим по всем строкам
-
-
-            if (index > 0 && index < (i - 1)) { // исключаем строку с шапкой и последнюю с предложением добавить строку
-
-               // console.log("id для проверки "+$(this).filter(":not([id ^=new_so])").attr('id'));
-                // Выбираем все строки кроме: последней и с id=new_so
-                var test = (/^([0-9]+)|[a-z]*_*[0-9]*/.exec($(this).filter(":not([id=new_so])").attr('id')));
-                var idcat;
-                //console.log("Суб категории ");
-                //console.log($(this).attr('data-sub-cat'));
-
-                     // Действия таблицы без категории
-                if($(this).attr('data-sub-cat')==undefined) {
-
-                    $('#' + id_table + ' td[id=' + $(this).attr('id') + ']').append("<div class='div_table_delete'></div>");
-
-                    $('#' + id_table + ' td[id=' + $(this).attr('id') + '] div.div_table_delete').append("<input class='cehed_all_delete'  id='del_" + $(this).attr('id') + "' type=checkbox><label name=" + $(this).attr('id') + "-1 for='del_" + $(this).attr('id') + "'></label>");
-
-                    $('#' + id_table + ' td[id=' + $(this).attr('id') + '] div.div_table_delete').css({"text-align": "left"});
+        if ($('tr input[type=checkbox]', '#' + id_table).length == 0) { // выводим чекбокс, чтолько если его нет
+            $('#' + id_table + ' tr').each(function (index, value) { //в цикле проходим по всем строкам
+                var testId = testDataTableVendor($(this).attr('id')); // Получаем id сущ. строки
+                if (index > 0 && index < (i - 1)) { // исключаем строку с шапкой и последнюю с предложением добавить строку
+                    // Действия таблицы без категории
+                    if (testId == 2) { // Категория
+                        $('#' + id_table + ' td[id=' + $(this).attr('id') + ']').append("<div class='div_table_delete'></div>");
+                        $('#' + id_table + ' td[id=' + $(this).attr('id') + '] div.div_table_delete').append("<input class='cehed_all_delete'  id='del_" + $(this).attr('id') + "' type=checkbox><label name=" + $(this).attr('id') + "-1 for='del_" + $(this).attr('id') + "'></label>");
+                        $('#' + id_table + ' td[id=' + $(this).attr('id') + '] div.div_table_delete').css({"text-align": "left"});
+                    }
                 }
+                if (testId == 4) { // Подкатегория
+                    $('#' + id_table + ' tr[data-sub-cat=' + $(this).attr('data-sub-cat') + ']' + ' td[id=' + $(this).attr('data-sub-cat') + ']').append("<div class='div_table_delete'></div>");
+                    $('#' + id_table + ' tr[data-sub-cat=' + $(this).attr('data-sub-cat') + '] ' + ' td[id=' + $(this).attr('data-sub-cat') + ']' + ' div.div_table_delete').append("<input class='cehed_all_delete'  id='del_" + $(this).attr('data-sub-cat') + "' type=checkbox><label name=" + $(this).attr('data-sub-cat') + "-1 for='del_" + $(this).attr('data-sub-cat') + "'></label>");
+                    $('#' + id_table + ' tr[data-sub-cat=' + $(this).attr('data-sub-cat') + ']' + ' td[id=' + $(this).attr('data-sub-cat') + ']' + ' div.div_table_delete').css({"text-align": "left"});
+                }
+
+                if (testId == 6) { // Субкатегорий
+                    $('#' + id_table + ' tr[data-sub-two-category=' + $(this).attr('data-sub-two-category') + ']' + ' td[id=' + $(this).attr('data-sub-two-category') + ']').append("<div class='div_table_delete'></div>");
+                    $('#' + id_table + ' tr[data-sub-two-category=' + $(this).attr('data-sub-two-category') + '] ' + ' td[id=' + $(this).attr('data-sub-two-category') + ']' + ' div.div_table_delete').append("<input class='cehed_all_delete'  id='del_" + $(this).attr('data-sub-two-category') + "' type=checkbox><label name=" + $(this).attr('data-sub-two-category') + "-1 for='del_" + $(this).attr('data-sub-two-category') + "'></label>");
+                    $('#' + id_table + ' tr[data-sub-two-category=' + $(this).attr('data-sub-two-category') + ']' + ' td[id=' + $(this).attr('data-sub-two-category') + ']' + ' div.div_table_delete').css({"text-align": "left"});
+                }
+
+            });
+
         }
-                 // действие таблицы с категориями
-            if($(this).attr('data-sub-cat')>0) {
 
-                $('#' + id_table + ' tr[data-sub-cat=' + $(this).attr('data-sub-cat')+ ']' +  ' td[id=' + $(this).attr('data-sub-cat')+ ']').append("<div class='div_table_delete'></div>");
-
-                $('#' + id_table + ' tr[data-sub-cat=' + $(this).attr('data-sub-cat') + '] '+  ' td[id=' + $(this).attr('data-sub-cat')+ ']'+  ' div.div_table_delete').append("<input class='cehed_all_delete'  id='del_" + $(this).attr('data-sub-cat') + "' type=checkbox><label name=" + $(this).attr('data-sub-cat') + "-1 for='del_" + $(this).attr('data-sub-cat') + "'></label>");
-
-                $('#' + id_table + ' tr[data-sub-cat=' + $(this).attr('data-sub-cat') + ']'+  ' td[id=' + $(this).attr('data-sub-cat')+ ']'+' div.div_table_delete').css({"text-align": "left"});
-
-
-
-
-
-            }
-
-
-
-        });
 
     }
-
-
-}
 
 /*
 Функция вставляет ссылку со значком напротив чекбокса
@@ -1112,31 +1272,30 @@ function insert_checbox(id_table) { // Идентификатор id без си
 
 function insert_lable_delete(t) {
     var table_id = $(t).closest('table').attr("id"); // Определяем id таблицы в которой проиошло событие
-
-    // 125 или delete за которым символ  _  после цифры     125_256  или del_125
-    var test = (/^([0-9]+)|[a-z]*_*[0-9]*/.exec($(t).filter(":not([id=new_so])").attr('id')));
-    //console.log('id переданной строки '+test[1]);
-
-    if($(t).attr('data-sub-cat')==undefined) {
-
+    var testId = testDataTableVendor($(t).attr('id')); // Получаем id сущ. строки
+    console.log(testId + '  '+ $(t).attr('id'));
+    if (testId == 2) { // Категория
         $('#' + table_id + ' td[id=' + $(t).attr('id') + '] div.div_table_delete').append('<a id=on_delete_vendor  href=#  name=' + $(t).attr('id') + '>' +
             '<img src="../../resources/image/delete_str.png" width="20" \n' +
-            '  height="12" alt="Удалить"></a>');
-
+            '  height="12" alt="Удалить категорию"></a>');
     }
 
-
-    if($(t).attr('data-sub-cat')>0) {
-          //console.log("data-sub-cat");
-        //console.log($(t).attr('data-sub-cat'));
-        $('#' + table_id + ' tr[data-sub-cat=' + $(t).attr('data-sub-cat') + ']'+' td[id=' + $(t).attr('data-sub-cat') + ']'+' div.div_table_delete').append('<a id=on_delete_vendor  href=#  name=' + $(t).attr('data-sub-cat') + '>' +
+    if (testId == 4) { // Подкатегория
+        $('#' + table_id + ' tr[data-sub-cat=' + $(t).attr('data-sub-cat') + ']' + ' td[id=' + $(t).attr('data-sub-cat') + ']' + ' div.div_table_delete').append('<a id=on_delete_vendor  href=#  name=' + $(t).attr('data-sub-cat') + '>' +
             '<img src="../../resources/image/delete_str.png" width="20" \n' +
-            '  height="12" alt="Удалить"></a>');
+            '  height="12" alt="Удалить подкатегорию"></a>');
+    }
 
+    if (testId == 6) { // Субкатегория
+        $('#' + table_id + ' tr[data-sub-two-category=' + $(t).attr('data-sub-two-category') + ']' + ' td[id=' + $(t).attr('data-sub-two-category') + ']' + ' div.div_table_delete').append('<a id=on_delete_vendor  href=#  name=' + $(t).attr('data-sub-two-category') + '>' +
+            '<img src="../../resources/image/delete_str.png" width="20" \n' +
+            '  height="12" alt="Удалить субкатегорию"></a>');
     }
 
 
 }
+
+}); // Конец загрузки
 
 
 // Метод удаляет отмеченные строки таблицы
@@ -1159,9 +1318,16 @@ function deleteAll_Id(s, tab_id_mouseenter) {  //s - массив удаляем
             if (res) {
                 s.forEach(function (vend) { // Удаляем строки
                     $('#' + tab_id_mouseenter + ' tr[id=' + vend.id + ']').remove().hide(500); // удаляем категорию
-                    $('#' + tab_id_mouseenter + ' tr[id=new_so_'+ vend.id +']').remove().hide(500); // удаляем пустую строку категории
-                    if(tab_id_mouseenter=='subcategory')
-                    $('#category  tr[id *=' + vend.id +'][data-tr-id]').remove().hide(500); // удаляем строки подкатегорий
+                    $('#' + tab_id_mouseenter + ' tr[id=new_so_' + vend.id + ']').remove().hide(500); // удаляем пустую строку категории
+                    if (tab_id_mouseenter == 'subcategory') {
+                        $('#category  tr[id *=' + vend.id + '][data-tr-id]').remove().hide(500); // удаляем строки подкатегорий
+                    }
+                    if (tab_id_mouseenter == 'subtwocategory') {
+                        $('#category  tr[id *=' + vend.id + '][data-tr-id]').remove().hide(500); // удаляем строки субкатегорий
+                    }
+
+
+
                 })
 
             }
@@ -1187,9 +1353,9 @@ if (!vokmar.error) {
 
             var tesr = /^([a-z]{3}_[a-z]{4})[...]*/
 
-                if (/^([a-z]{3}_[a-z]{4})[...]*/.test(jobgect.attr('id'))) {
+            if (/^([a-z]{3}_[a-z]{4})[...]*/.test(jobgect.attr('id'))) {
 
-                    hel = $(jobgect).height();
+                hel = $(jobgect).height();
 
                 $('#data_td').offset(({
 
